@@ -1,0 +1,60 @@
+{
+  "title": "品牌运营数据看板",
+  "lastUpdate": "2026-03-30",
+  "refreshInterval": "每4小时",
+  "viewMode": "战略视图",
+  "alerts": [
+    {"type": "warning", "text": "API配额剩余 23%", "icon": "🔶"},
+    {"type": "danger", "text": "Tunnel心跳异常", "icon": "🔴"}
+  ],
+  "charts": {
+    "radar": {
+      "title": "品牌战略雷达",
+      "dimensions": [
+        {"name": "战略布局", "value": 85},
+        {"name": "视觉设计", "value": 92},
+        {"name": "品牌形象", "value": 88},
+        {"name": "内容热点", "value": 76},
+        {"name": "品牌活动", "value": 81}
+      ]
+    },
+    "kanban": {
+      "title": "项目资产看板",
+      "projects": [
+        {"name": "51吃瓜", "version": "v2.3", "status": "已完成", "vi": 95, "consistency": 88},
+        {"name": "节日营销", "version": "v1.8", "status": "优化中", "vi": 78, "consistency": 82},
+        {"name": "IP联名", "version": "v3.0", "status": "进行中", "vi": 65, "consistency": 71},
+        {"name": "品牌升级", "version": "v2.0", "status": "规划中", "vi": 45, "consistency": 55}
+      ]
+    },
+    "donut": {
+      "title": "设计需求分布",
+      "segments": [
+        {"name": "IP设计", "value": 35, "color": "#00d4ff"},
+        {"name": "VI物料", "value": 28, "color": "#a855f7"},
+        {"name": "营销物料", "value": 25, "color": "#fbbf24"},
+        {"name": "临时任务", "value": 12, "color": "#f97316"}
+      ]
+    },
+    "line": {
+      "title": "交付响应时效 (TAT)",
+      "xAxis": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+      "delivery": [42, 38, 45, 32, 28, 35, 40],
+      "response": [35, 32, 38, 28, 24, 30, 35]
+    }
+  },
+  "kpis": {
+    "operational": [
+      {"label": "技能成功率", "value": "94.2%", "change": "+2.1%", "trend": "up"},
+      {"label": "API配额", "value": "23%", "change": "-12%", "trend": "down"},
+      {"label": "连接状态", "value": "在线", "status": "online"},
+      {"label": "节省时间", "value": "128h", "change": "+18%", "trend": "up"}
+    ],
+    "technical": [
+      {"label": "流程耗时", "value": "2.3s", "change": "-0.5s", "trend": "down"},
+      {"label": "资产增长", "value": "+156", "change": "+23%", "trend": "up"},
+      {"label": "技能调用", "value": "8,420", "change": "+15%", "trend": "up"},
+      {"label": "系统稳定性", "value": "99.7%", "change": "+0.2%", "trend": "up"}
+    ]
+  }
+}
