@@ -190,13 +190,13 @@
       </div>
       <div class="nav">
         <div class="nav-item active"><span class="nav-icon">📊</span><span class="nav-label">00_总览</span><span class="nav-tag green">TOP</span></div>
-        <div class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">01_运营结果</span></div>
-        <div class="nav-item"><span class="nav-icon">⚡</span><span class="nav-label">02_运营执行</span></div>
-        <div class="nav-item"><span class="nav-icon">🎨</span><span class="nav-label">03_设计效率</span></div>
-        <div class="nav-item"><span class="nav-icon">✨</span><span class="nav-label">04_设计质量</span></div>
-        <div class="nav-item"><span class="nav-icon">🔗</span><span class="nav-label">05_协同瓶颈</span><span class="nav-tag red">3</span></div>
-        <div class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">06_预算产出</span></div>
-        <div class="nav-item"><span class="nav-icon">📋</span><span class="nav-label">07_周报/月报</span></div>
+        <div class="nav-item" onclick="switchPage(this)" data-page="><span class="nav-icon">📈</span><span class="nav-label">01_运营结果</span></div><div class="nav-item" onclick="switchPage(this)" data-page="02"></div>
+        <div class="nav-item" onclick="switchPage(this)" data-page="><span class="nav-icon">⚡</span><span class="nav-label">02_运营执行</span></div><div class="nav-item" onclick="switchPage(this)" data-page="03"></div>
+        <div class="nav-item" onclick="switchPage(this)" data-page="><span class="nav-icon">🎨</span><span class="nav-label">03_设计效率</span></div><div class="nav-item" onclick="switchPage(this)" data-page="04"></div>
+        <div class="nav-item" onclick="switchPage(this)" data-page="><span class="nav-icon">✨</span><span class="nav-label">04_设计质量</span></div><div class="nav-item" onclick="switchPage(this)" data-page="05"></div>
+        <div class="nav-item" onclick="switchPage(this)" data-page="><span class="nav-icon">🔗</span><span class="nav-label">05_协同瓶颈</span></div><div class="nav-item" onclick="switchPage(this)" data-page="06"><span class="nav-tag red">3</span></div>
+        <div class="nav-item" onclick="switchPage(this)" data-page="><span class="nav-icon">💰</span><span class="nav-label">06_预算产出</span></div><div class="nav-item" onclick="switchPage(this)" data-page="07"></div>
+        <div class="nav-item" onclick="switchPage(this)" data-page="><span class="nav-icon">📋</span><span class="nav-label">07_周报/月报</span></div>
       </div>
       <div class="sidebar-footer">
         <div class="sys-status"><span class="sys-dot"></span>系统正常运行</div>
@@ -221,11 +221,11 @@
 
       <!-- Tab 切换 -->
       <div class="tab-bar">
-        <div class="tab-item active">战略总览</div>
-        <div class="tab-item">品牌健康度</div>
-        <div class="tab-item">渠道表现</div>
-        <div class="tab-item">设计交付</div>
-        <div class="tab-item">协同效率</div>
+        <div class="tab-item active" onclick="switchTab(this, '战略总览')">战略总览</div>
+        <div class="tab-item" onclick="switchTab(this, '品牌健康度')">品牌健康度</div>
+        <div class="tab-item" onclick="switchTab(this, '渠道表现')">渠道表现</div>
+        <div class="tab-item" onclick="switchTab(this, '设计交付')">设计交付</div>
+        <div class="tab-item" onclick="switchTab(this, '协同效率')">协同效率</div>
       </div>
 
       <!-- KPI 总卡 -->
@@ -256,7 +256,7 @@
       <div class="brand-section">
         <div class="section-title">4大核心项目生命周期</div>
         <div class="brand-grid">
-          <div class="brand-card healthy">
+          <div class="brand-card healthy" onclick="showBrandDetail('51吃瓜')" style="cursor:pointer">
             <div class="brand-name">51吃瓜</div>
             <span class="brand-status">健康</span>
             <div class="brand-metrics">
@@ -264,7 +264,7 @@
               <span>评分 <strong>85</strong></span>
             </div>
           </div>
-          <div class="brand-card warning">
+          <div class="brand-card warning" onclick="showBrandDetail(this)" style="cursor:pointer">
             <div class="brand-name">每日大赛</div>
             <span class="brand-status">预警</span>
             <div class="brand-metrics">
@@ -272,7 +272,7 @@
               <span>评分 <strong>82</strong></span>
             </div>
           </div>
-          <div class="brand-card healthy">
+          <div class="brand-card healthy" onclick="showBrandDetail('51吃瓜')" style="cursor:pointer">
             <div class="brand-name">黑料网</div>
             <span class="brand-status">健康</span>
             <div class="brand-metrics">
@@ -280,7 +280,7 @@
               <span>评分 <strong>88</strong></span>
             </div>
           </div>
-          <div class="brand-card warning">
+          <div class="brand-card warning" onclick="showBrandDetail(this)" style="cursor:pointer">
             <div class="brand-name">黑料不打烊</div>
             <span class="brand-status">预警</span>
             <div class="brand-metrics">
@@ -570,6 +570,40 @@
         plugins:{legend:{labels:{color:'#9ba3be',font:{size:11}}}}
       }
     });
+  </script>
+
+  <script>
+    // 页面切换
+    function switchPage(el) {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      const page = el.getAttribute('data-page');
+      showPage(page);
+    }
+    
+    function switchTab(el, tabName) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      console.log('切换Tab:', tabName);
+    }
+    function showPage(page) {
+      // 隐藏所有页面内容
+      document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+      // 显示对应页面（这里先简化处理，实际应有多页面内容）
+      alert('切换到页面: ' + page);
+    }
+    
+    // 品牌详情弹窗
+    function showBrandDetail(brand) {
+      const details = {
+        '51吃瓜': {vi: '92%', score: 85, status: '健康', channels: '抖音:120万,小红书:65万', risk: '无'},
+        '每日大赛': {vi: '78%', score: 82, status: '预警', channels: '抖音:80万,快手:60万', risk: 'VI覆盖不足'},
+        '黑料网': {vi: '95%', score: 88, status: '健康', channels: '抖音:150万,视频号:80万', risk: '无'},
+        '黑料不打烊': {vi: '90%', score: 80, status: '预警', channels: '抖音:70万,快手:50万', risk: '评分偏低'}
+      };
+      const d = details[brand] || details['51吃瓜'];
+      alert(brand + '\nVI覆盖: ' + d.vi + '\n评分: ' + d.score + '\n状态: ' + d.status + '\n渠道: ' + d.channels + '\n风险: ' + d.risk);
+    }
   </script>
 </body>
 </html>
