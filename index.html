@@ -126,6 +126,14 @@
   .doc-meta{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--text3)}
   .doc-link{color:var(--blue);font-size:11px;cursor:pointer}
   .doc-link:hover{text-decoration:underline}
+  .donut-wrap{position:relative;width:100%;height:200px}
+  .line-wrap{position:relative;width:100%;height:200px}
+  .tech-kpi{display:flex;flex-direction:column;gap:8px}
+  .tech-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px}
+  .tech-label{font-size:10px;color:var(--text3);margin-bottom:4px}
+  .tech-value{font-size:22px;font-weight:700}
+  .tech-change{font-size:11px}
+  .tech-status{font-size:12px;display:flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
@@ -248,6 +256,43 @@
                 <tr><td>视频号</td><td>58</td><td><span class="tag blue">180万</span></td><td>5.5%</td><td>1.5%</td></tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 第二屏 -->
+      <div class="section-title">第二屏：需求类型与交付时效</div>
+      <div class="grid3" style="margin-bottom:24px">
+        <div class="card">
+          <div class="card-head"><span class="card-title">需求类型占比（设计侧）</span></div>
+          <div class="donut-wrap"><canvas id="donutChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">交付时效 TAT（响应 vs 交付）</span></div>
+          <div class="line-wrap"><canvas id="tatChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">底层技术指标</span></div>
+          <div class="tech-kpi">
+            <div class="tech-card">
+              <div class="tech-label">平均流转时长</div>
+              <div class="tech-value" style="color:var(--blue)">18.6h</div>
+              <div class="tech-change" style="color:var(--blue)">↓ 1.2h</div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-label">今日新增资产</div>
+              <div class="tech-value" style="color:var(--teal)">42</div>
+              <div class="tech-change" style="color:var(--green)">↑ +8</div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-label">今日 Skill 调用</div>
+              <div class="tech-value" style="color:var(--amber)">84</div>
+              <div class="tech-change" style="color:var(--green)">↑ +14</div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-label">Tunnel 状态</div>
+              <div class="tech-status"><span style="width:8px;height:8px;background:var(--green);border-radius:50%"></span>稳定</div>
+            </div>
           </div>
         </div>
       </div>
@@ -469,6 +514,46 @@
         }
       },
       plugins: { legend: { display: false } }
+    }
+  });
+
+  // Donut Chart
+  new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['宣发图', 'VI物料', 'IP设计', '临时任务'],
+      datasets: [{
+        data: [42, 28, 20, 10],
+        backgroundColor: ['#4d8ef0', '#5a6280', '#3dcfb0', '#f0b940'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: { legend: { position: 'bottom', labels: { color: '#9ba3be', font: { size: 10 }, padding: 12 } } }
+    }
+  });
+
+  // TAT Line Chart
+  new Chart(document.getElementById('tatChart'), {
+    type: 'line',
+    data: {
+      labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+      datasets: [
+        {label: '交付', data: [420, 380, 950, 480, 420, 450, 400], borderColor: '#3dcfb0', backgroundColor: '#3dcfb022', fill: true, tension: 0.4},
+        {label: '响应', data: [380, 320, 350, 280, 260, 300, 320], borderColor: '#9d6cf0', backgroundColor: '#9d6cf022', fill: true, tension: 0.4}
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { color: '#9ba3be', font: { size: 10 } } } },
+      scales: {
+        x: { grid: { color: '#2a2f45' }, ticks: { color: '#9ba3be' } },
+        y: { grid: { color: '#2a2f45' }, ticks: { color: '#9ba3be' } }
+      }
     }
   });
 
