@@ -27,7 +27,6 @@
       min-height: 100vh;
       padding: 16px;
     }
-    /* Header */
     .header {
       display: flex;
       justify-content: space-between;
@@ -77,7 +76,6 @@
       0%,100% { opacity: 1; box-shadow: 0 0 8px var(--success); }
       50% { opacity: 0.5; box-shadow: 0 0 4px var(--success); }
     }
-    /* Meta strip */
     .meta-strip {
       display: flex;
       justify-content: center;
@@ -90,7 +88,6 @@
       color: var(--text-muted);
     }
     .meta-strip span { display: flex; align-items: center; gap: 6px; }
-    /* Risk warning */
     .risk-bar {
       display: flex;
       align-items: center;
@@ -103,7 +100,6 @@
     }
     .risk-dot { width: 10px; height: 10px; background: var(--success); border-radius: 50%; }
     .risk-text { font-size: 13px; color: var(--success); }
-    /* Main grid */
     .main-grid {
       display: grid;
       grid-template-columns: 1fr 1.2fr 1fr;
@@ -132,10 +128,8 @@
       background: var(--primary);
       border-radius: 2px;
     }
-    /* Radar */
     .radar-wrap { height: 280px; }
     .radar-hint { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 10px; }
-    /* Project cards 2x2 */
     .project-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -162,7 +156,7 @@
     }
     .project-status.done { background: rgba(34,197,94,0.15); color: var(--success); }
     .project-status.optimize { background: rgba(251,191,36,0.15); color: var(--accent); }
-    .project-status.alert { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .project-status.running { background: rgba(0,212,255,0.15); color: var(--primary); }
     .project-bars { display: flex; flex-direction: column; gap: 8px; }
     .progress-item { display: flex; align-items: center; gap: 8px; }
     .progress-label { font-size: 11px; color: var(--text-muted); width: 70px; }
@@ -180,7 +174,7 @@
       margin-top: 8px;
     }
     .sync-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
-    /* KPI cards */
+    .sync-dot.warning { background: var(--danger); }
     .kpi-list { display: flex; flex-direction: column; gap: 12px; }
     .kpi-card {
       background: var(--bg-card-light);
@@ -190,18 +184,11 @@
     }
     .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
     .kpi-label { font-size: 12px; color: var(--text-muted); }
-    .kpi-tag {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 3px;
-      background: rgba(251,191,36,0.15);
-      color: var(--accent);
-    }
     .kpi-value { font-size: 32px; font-weight: 700; }
     .kpi-trend { font-size: 12px; margin-top: 4px; }
     .kpi-trend.up { color: var(--success); }
     .kpi-trend.down { color: var(--danger); }
-    .kpi-status { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+    .kpi-trend.neutral { color: var(--text-muted); }
     @media (max-width: 1000px) {
       .main-grid { grid-template-columns: 1fr; }
       .project-grid { grid-template-columns: 1fr; }
@@ -209,7 +196,6 @@
   </style>
 </head>
 <body>
-  <!-- Header -->
   <div class="header">
     <div class="header-left">
       <h1>品牌组 <span>BI</span> 数字化大屏</h1>
@@ -227,31 +213,26 @@
     </div>
   </div>
 
-  <!-- Meta strip -->
   <div class="meta-strip">
-    <span>📅 最后刷新：2026-03-30 12:00:00</span>
-    <span>🔄 竞品监测频率：每4小时</span>
+    <span>📅 最后刷新：2026-03-31 13:50:00</span>
+    <span>🔄 数据更新频率：每小时</span>
     <span>🎯 当前模式：战略统筹</span>
   </div>
 
-  <!-- Risk bar -->
   <div class="risk-bar">
     <span class="risk-dot"></span>
-    <span class="risk-text">API配额和Tunnel心跳状态正常</span>
+    <span class="risk-text">系统运行正常，所有项目状态已同步</span>
   </div>
 
-  <!-- Main grid -->
   <div class="main-grid">
-    <!-- Left: Radar -->
     <div class="card">
       <div class="card-title">首屏：战略统筹中心（品牌运营视角）</div>
       <div class="radar-wrap">
         <canvas id="radarChart"></canvas>
       </div>
-      <div class="radar-hint">* 点击任意维度可下钻查看Skill解决方案建议</div>
+      <div class="radar-hint">* 点击任意维度可下钻查看解决方案建议</div>
     </div>
 
-    <!-- Center: Projects 2x2 -->
     <div class="card">
       <div class="card-title">核心项目资产看板（4大项目）</div>
       <div class="project-grid">
@@ -284,7 +265,7 @@
               <div class="project-name">每日大赛</div>
               <div class="project-version">v1.9</div>
             </div>
-            <span class="project-status optimize">待优化</span>
+            <span class="project-status optimize">优化中</span>
           </div>
           <div class="project-bars">
             <div class="progress-item">
@@ -305,23 +286,23 @@
           <div class="project-header">
             <div>
               <div class="project-name">黑料网</div>
-              <div class="project-version">v1.6</div>
+              <div class="project-version">v2.0</div>
             </div>
-            <span class="project-status alert">待优化</span>
+            <span class="project-status running">进行中</span>
           </div>
           <div class="project-bars">
             <div class="progress-item">
               <span class="progress-label">VI覆盖</span>
-              <div class="progress-track"><div class="progress-fill vi" style="width:72%"></div></div>
-              <span class="progress-value">72%</span>
+              <div class="progress-track"><div class="progress-fill vi" style="width:85%"></div></div>
+              <span class="progress-value">85%</span>
             </div>
             <div class="progress-item">
               <span class="progress-label">品牌一致</span>
-              <div class="progress-track"><div class="progress-fill consistency" style="width:68%"></div></div>
-              <span class="progress-value">68%</span>
+              <div class="progress-track"><div class="progress-fill consistency" style="width:80%"></div></div>
+              <span class="progress-value">80%</span>
             </div>
           </div>
-          <div class="sync-status" style="color:var(--danger)">⚠️ 版本不一致</div>
+          <div class="sync-status"><span class="sync-dot"></span>已同步</div>
         </div>
 
         <div class="project-card">
@@ -349,53 +330,48 @@
       </div>
     </div>
 
-    <!-- Right: KPIs -->
     <div class="card">
-      <div class="card-title">技术性能指标</div>
+      <div class="card-title">运营效能指标</div>
       <div class="kpi-list">
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">技能成功率</span>
           </div>
-          <div class="kpi-value" style="color:var(--primary)">92.4%</div>
-          <div class="kpi-trend up">↑ 较昨日 +2.3%</div>
+          <div class="kpi-value" style="color:var(--primary)">94.2%</div>
+          <div class="kpi-trend up">↑ 较昨日 +2.1%</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-header">
-            <span class="kpi-label">API剩余配额</span>
-            <span class="kpi-tag">重点关注</span>
+            <span class="kpi-label">本周产出内容</span>
           </div>
-          <div class="kpi-value" style="color:var(--accent)">45%</div>
-          <div class="kpi-trend down">↓ 较昨日 -4.1%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-label">Tunnel心跳</span>
-          </div>
-          <div class="kpi-status">
-            <span class="status-dot"></span>
-            <span style="color:var(--success)">在线</span>
-          </div>
+          <div class="kpi-value">156</div>
+          <div class="kpi-trend up">↑ 较上周 +23%</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">节省人力工时</span>
           </div>
-          <div class="kpi-value">1260h</div>
-          <div class="kpi-trend up">↑ 累计 +84h</div>
+          <div class="kpi-value">128h</div>
+          <div class="kpi-trend up">↑ 较上周 +18%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">AI视频生成</span>
+          </div>
+          <div class="kpi-value">42</div>
+          <div class="kpi-trend neutral">本月累计</div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Radar Chart
     new Chart(document.getElementById('radarChart'), {
       type: 'radar',
       data: {
-        labels: ['品牌活动', '视听览', '品牌形象', '内容热点', '战略布局'],
+        labels: ['品牌活动', '视觉规范', '品牌形象', '内容热点', '战略布局'],
         datasets: [{
-          data: [88, 92, 85, 78, 82],
+          data: [88, 85, 82, 76, 80],
           backgroundColor: 'rgba(0,212,255,0.15)',
           borderColor: '#00d4ff',
           borderWidth: 2,
