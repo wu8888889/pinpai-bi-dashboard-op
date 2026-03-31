@@ -189,7 +189,7 @@
         <div class="logo-sub">v5.0 · 多页面版本</div>
       </div>
       <div class="nav">
-        <div class="nav-item active"><span class="nav-icon">📊</span><span class="nav-label">00_总览</span><span class="nav-tag green">TOP</span></div>
+        <div class="nav-item active" data-page="00" onclick="switchPage(this)"><span class="nav-icon">📊</span><span class="nav-label">00_总览</span><span class="nav-tag green">TOP</span></div>
         <div class="nav-item" onclick="switchPage(this)" data-page="><span class="nav-icon">📈</span><span class="nav-label">01_运营结果</span></div><div class="nav-item" onclick="switchPage(this)" data-page="02"></div>
         <div class="nav-item" onclick="switchPage(this)" data-page="><span class="nav-icon">⚡</span><span class="nav-label">02_运营执行</span></div><div class="nav-item" onclick="switchPage(this)" data-page="03"></div>
         <div class="nav-item" onclick="switchPage(this)" data-page="><span class="nav-icon">🎨</span><span class="nav-label">03_设计效率</span></div><div class="nav-item" onclick="switchPage(this)" data-page="04"></div>
@@ -204,7 +204,7 @@
     </div>
     
     <!-- 主内容 -->
-    <div class="main">
+    <div class="main" id="mainContent">
       <div class="header">
         <div class="header-left">
           <h2>首页总览 · Executive Dashboard</h2>
@@ -527,83 +527,192 @@
     </div>
   </div>
 
-  <script>
-    // 时钟
-    function updateClock(){
-      const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    }
-    setInterval(updateClock,1000);
-    updateClock();
+    <script>
+    // 页面数据配置
+    const pages = {
+      '00': { title: '首页总览', icon: '📊', content: '00' },
+      '01': { title: '运营结果', icon: '📈', content: '01' },
+      '02': { title: '运营执行', icon: '⚡', content: '02' },
+      '03': { title: '设计效率', icon: '🎨', content: '03' },
+      '04': { title: '设计质量', icon: '✨', content: '04' },
+      '05': { title: '协同瓶颈', icon: '🔗', content: '05' },
+      '06': { title: '预算产出', icon: '💰', content: '06' },
+      '07': { title: '周报/月报', icon: '📋', content: '07' }
+    };
 
-    // 需求类型环形图
-    new Chart(document.getElementById('demandChart'),{
-      type:'doughnut',
-      data:{
-        labels:['宣发图','VI物料','IP设计','临时任务'],
-        datasets:[{data:[42,28,20,10],backgroundColor:['#4d8ef0','#9d6cf0','#f0b940','#f97316'],borderWidth:0}]
-      },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{legend:{position:'right',labels:{color:'#9ba3be',font:{size:11},padding:10}}}
-      }
-    });
-
-    // TAT折线图
-    new Chart(document.getElementById('tatChart'),{
-      type:'line',
-      data:{
-        labels:['周一','周二','周三','周四','周五','周六','周日'],
-        datasets:[
-          {label:'响应时间',data:[35,32,38,28,24,30,35],borderColor:'#4d8ef0',backgroundColor:'rgba(77,142,240,0.1)',fill:true,tension:0.4},
-          {label:'交付时间',data:[42,38,45,32,28,35,40],borderColor:'#9d6cf0',backgroundColor:'rgba(157,108,240,0.1)',fill:true,tension:0.4}
-        ]
-      },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        scales:{
-          y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#9ba3be'}},
-          x:{grid:{display:false},ticks:{color:'#9ba3be'}}
-        },
-        plugins:{legend:{labels:{color:'#9ba3be',font:{size:11}}}}
-      }
-    });
-  </script>
-
-  <script>
-    // 页面切换
     function switchPage(el) {
+      // 更新导航高亮
       document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
       el.classList.add('active');
+      
       const page = el.getAttribute('data-page');
-      showPage(page);
+      const pageData = pages[page];
+      
+      // 更新标题
+      document.querySelector('.header h2').textContent = pageData.title + ' · ' + pageData.icon;
+      
+      // 显示对应内容区域
+      showPageContent(page);
     }
     
+    function showPageContent(page) {
+      // 这里可以扩展为真正的多页面内容
+      const main = document.querySelector('.main');
+      
+      // 简单实现：显示提示
+      const hint = document.createElement('div');
+      hint.style.cssText = 'padding:40px;text-align:center;color:var(--text3);font-size:16px;';
+      hint.id = 'pageHint';
+      hint.innerHTML = '📌 当前页面: ' + page + '<br><br>点击左侧导航切换不同页面查看详细数据';
+      
+      // 移除旧的提示
+      const old = document.getElementById('pageHint');
+      if(old) old.remove();
+      
+      // 在内容区域插入
+      main.appendChild(hint);
+    }
+
+    // Tab切换
     function switchTab(el, tabName) {
       document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
       el.classList.add('active');
-      console.log('切换Tab:', tabName);
     }
-    function showPage(page) {
-      // 隐藏所有页面内容
-      document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
-      // 显示对应页面（这里先简化处理，实际应有多页面内容）
-      alert('切换到页面: ' + page);
+
+    // 品牌卡片点击 - 弹窗详情
+    function showBrandDetail(brand) {
+      const modal = document.createElement('div');
+      modal.id = 'brandModal';
+      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;';
+      modal.onclick = function() { this.remove(); };
+      
+      const content = document.createElement('div');
+      content.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:400px;';
+      
+      const data = {
+        '51吃瓜': {vi:'92%',score:85,status:'健康',risk:'无',channel:'抖音120万/小红书65万'},
+        '每日大赛': {vi:'78%',score:82,status:'预警',risk:'VI覆盖不足',channel:'抖音80万/快手60万'},
+        '黑料网': {vi:'95%',score:88,status:'健康',risk:'无',channel:'抖音150万/视频号80万'},
+        '黑料不打烊': {vi:'90%',score:80,status:'预警',risk:'评分偏低',channel:'抖音70万/快手50万'}
+      };
+      const d = data[brand] || data['51吃瓜'];
+      
+      content.innerHTML = '<h3 style="margin:0 0 16px">' + brand + '</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;color:var(--text2)">' +
+        '<div>VI覆盖: <span style="color:var(--text)">' + d.vi + '</span></div>' +
+        '<div>评分: <span style="color:var(--text)">' + d.score + '</span></div>' +
+        '<div>状态: <span style="color:var(--green)">' + d.status + '</span></div>' +
+        '<div>风险: <span style="color:var(--red)">' + d.risk + '</span></div>' +
+        '<div style="grid-column:span 2">渠道: ' + d.channel + '</div>' +
+        '</div>' +
+        '<button onclick="document.getElementById('brandModal').remove()" style="margin-top:16px;padding:8px 20px;background:var(--blue);border:none;border-radius:6px;color:#fff;cursor:pointer">关闭</button>';
+      
+      modal.appendChild(content);
+      document.body.appendChild(modal);
+    }
+
+    // 品牌卡片添加点击
+    document.querySelectorAll('.brand-card').forEach(card => {
+      card.style.cursor = 'pointer';
+      card.onclick = function() {
+        const brand = this.querySelector('.brand-name').textContent;
+        showBrandDetail(brand);
+      };
+    });
+  </script>
+
+    <script>
+    // 页面数据配置
+    const pages = {
+      '00': { title: '首页总览', icon: '📊', content: '00' },
+      '01': { title: '运营结果', icon: '📈', content: '01' },
+      '02': { title: '运营执行', icon: '⚡', content: '02' },
+      '03': { title: '设计效率', icon: '🎨', content: '03' },
+      '04': { title: '设计质量', icon: '✨', content: '04' },
+      '05': { title: '协同瓶颈', icon: '🔗', content: '05' },
+      '06': { title: '预算产出', icon: '💰', content: '06' },
+      '07': { title: '周报/月报', icon: '📋', content: '07' }
+    };
+
+    function switchPage(el) {
+      // 更新导航高亮
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      
+      const page = el.getAttribute('data-page');
+      const pageData = pages[page];
+      
+      // 更新标题
+      document.querySelector('.header h2').textContent = pageData.title + ' · ' + pageData.icon;
+      
+      // 显示对应内容区域
+      showPageContent(page);
     }
     
-    // 品牌详情弹窗
-    function showBrandDetail(brand) {
-      const details = {
-        '51吃瓜': {vi: '92%', score: 85, status: '健康', channels: '抖音:120万,小红书:65万', risk: '无'},
-        '每日大赛': {vi: '78%', score: 82, status: '预警', channels: '抖音:80万,快手:60万', risk: 'VI覆盖不足'},
-        '黑料网': {vi: '95%', score: 88, status: '健康', channels: '抖音:150万,视频号:80万', risk: '无'},
-        '黑料不打烊': {vi: '90%', score: 80, status: '预警', channels: '抖音:70万,快手:50万', risk: '评分偏低'}
-      };
-      const d = details[brand] || details['51吃瓜'];
-      alert(brand + '\nVI覆盖: ' + d.vi + '\n评分: ' + d.score + '\n状态: ' + d.status + '\n渠道: ' + d.channels + '\n风险: ' + d.risk);
+    function showPageContent(page) {
+      // 这里可以扩展为真正的多页面内容
+      const main = document.querySelector('.main');
+      
+      // 简单实现：显示提示
+      const hint = document.createElement('div');
+      hint.style.cssText = 'padding:40px;text-align:center;color:var(--text3);font-size:16px;';
+      hint.id = 'pageHint';
+      hint.innerHTML = '📌 当前页面: ' + page + '<br><br>点击左侧导航切换不同页面查看详细数据';
+      
+      // 移除旧的提示
+      const old = document.getElementById('pageHint');
+      if(old) old.remove();
+      
+      // 在内容区域插入
+      main.appendChild(hint);
     }
+
+    // Tab切换
+    function switchTab(el, tabName) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // 品牌卡片点击 - 弹窗详情
+    function showBrandDetail(brand) {
+      const modal = document.createElement('div');
+      modal.id = 'brandModal';
+      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;';
+      modal.onclick = function() { this.remove(); };
+      
+      const content = document.createElement('div');
+      content.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:400px;';
+      
+      const data = {
+        '51吃瓜': {vi:'92%',score:85,status:'健康',risk:'无',channel:'抖音120万/小红书65万'},
+        '每日大赛': {vi:'78%',score:82,status:'预警',risk:'VI覆盖不足',channel:'抖音80万/快手60万'},
+        '黑料网': {vi:'95%',score:88,status:'健康',risk:'无',channel:'抖音150万/视频号80万'},
+        '黑料不打烊': {vi:'90%',score:80,status:'预警',risk:'评分偏低',channel:'抖音70万/快手50万'}
+      };
+      const d = data[brand] || data['51吃瓜'];
+      
+      content.innerHTML = '<h3 style="margin:0 0 16px">' + brand + '</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;color:var(--text2)">' +
+        '<div>VI覆盖: <span style="color:var(--text)">' + d.vi + '</span></div>' +
+        '<div>评分: <span style="color:var(--text)">' + d.score + '</span></div>' +
+        '<div>状态: <span style="color:var(--green)">' + d.status + '</span></div>' +
+        '<div>风险: <span style="color:var(--red)">' + d.risk + '</span></div>' +
+        '<div style="grid-column:span 2">渠道: ' + d.channel + '</div>' +
+        '</div>' +
+        '<button onclick="document.getElementById('brandModal').remove()" style="margin-top:16px;padding:8px 20px;background:var(--blue);border:none;border-radius:6px;color:#fff;cursor:pointer">关闭</button>';
+      
+      modal.appendChild(content);
+      document.body.appendChild(modal);
+    }
+
+    // 品牌卡片添加点击
+    document.querySelectorAll('.brand-card').forEach(card => {
+      card.style.cursor = 'pointer';
+      card.onclick = function() {
+        const brand = this.querySelector('.brand-name').textContent;
+        showBrandDetail(brand);
+      };
+    });
   </script>
 </body>
 </html>
