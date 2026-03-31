@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>品牌运营数据看板</title>
+  <title>品牌组 BI 数字化大屏 V1.0</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -13,11 +13,11 @@
       --primary: #00d4ff;
       --secondary: #a855f7;
       --accent: #fbbf24;
+      --success: #22c55e;
       --danger: #ef4444;
-      --warning: #f97316;
       --text-main: #ffffff;
       --text-muted: #94a3b8;
-      --border: rgba(255,255,255,0.08);
+      --border: rgba(0,212,255,0.15);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -27,277 +27,362 @@
       min-height: 100vh;
       padding: 16px;
     }
+    /* Header */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 20px;
-      background: var(--bg-card);
-      border-radius: 12px;
-      margin-bottom: 16px;
+      padding: 14px 24px;
+      background: linear-gradient(90deg, rgba(0,212,255,0.08) 0%, transparent 100%);
       border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
     }
-    .header-left h1 { font-size: 18px; font-weight: 600; }
-    .header-meta {
+    .header-left h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+    .header-left h1 span { color: var(--primary); }
+    .header-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .nav-tabs { display: flex; gap: 4px; }
+    .nav-tab {
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .nav-tab:hover { background: rgba(255,255,255,0.05); }
+    .nav-tab.active {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: 0 0 20px rgba(0,212,255,0.3);
+    }
+    .header-right { text-align: right; }
+    .clock { font-size: 28px; font-weight: 300; font-family: 'JetBrains Mono', monospace; }
+    .system-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--success);
+      margin-top: 4px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; box-shadow: 0 0 8px var(--success); }
+      50% { opacity: 0.5; box-shadow: 0 0 4px var(--success); }
+    }
+    /* Meta strip */
+    .meta-strip {
       display: flex;
-      gap: 20px;
+      justify-content: center;
+      gap: 40px;
+      padding: 8px;
+      background: var(--bg-card);
+      border-radius: 8px;
+      margin-bottom: 12px;
       font-size: 12px;
       color: var(--text-muted);
     }
-    .header-meta span { display: flex; align-items: center; gap: 6px; }
-    .alerts {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .alert {
-      flex: 1;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 13px;
+    .meta-strip span { display: flex; align-items: center; gap: 6px; }
+    /* Risk warning */
+    .risk-bar {
       display: flex;
       align-items: center;
-      gap: 8px;
-    }
-    .alert.warning { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3); color: var(--warning); }
-    .alert.danger { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: var(--danger); }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1.5fr 1fr;
-      gap: 16px;
+      gap: 12px;
+      padding: 12px 20px;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 8px;
       margin-bottom: 16px;
+    }
+    .risk-dot { width: 10px; height: 10px; background: var(--success); border-radius: 50%; }
+    .risk-text { font-size: 13px; color: var(--success); }
+    /* Main grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 16px;
     }
     .card {
       background: var(--bg-card);
       border-radius: 12px;
-      padding: 16px;
+      padding: 20px;
       border: 1px solid var(--border);
     }
     .card-title {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--text-muted);
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
-    .radar-wrap { height: 200px; }
-    .kanban-list { display: flex; flex-direction: column; gap: 10px; }
-    .kanban-item {
+    .card-title::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+    /* Radar */
+    .radar-wrap { height: 280px; }
+    .radar-hint { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 10px; }
+    /* Project cards 2x2 */
+    .project-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .project-card {
       background: var(--bg-card-light);
-      border-radius: 8px;
-      padding: 12px;
+      border-radius: 10px;
+      padding: 14px;
+      border: 1px solid var(--border);
     }
-    .kanban-header {
+    .project-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
-    .kanban-name { font-weight: 600; font-size: 14px; }
-    .kanban-status {
-      font-size: 11px;
-      padding: 2px 8px;
+    .project-name { font-weight: 600; font-size: 15px; }
+    .project-version { font-size: 11px; color: var(--text-muted); }
+    .project-status {
+      font-size: 10px;
+      padding: 3px 8px;
       border-radius: 4px;
-      background: rgba(0,212,255,0.15);
-      color: var(--primary);
     }
-    .kanban-status.done { background: rgba(34,197,94,0.15); color: #22c55e; }
-    .kanban-status.optimizing { background: rgba(251,191,36,0.15); color: var(--accent); }
-    .kanban-bars { display: flex; gap: 16px; }
-    .kanban-bar { flex: 1; }
-    .kanban-bar label { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px; }
-    .bar-track {
-      height: 6px;
-      background: var(--bg-dark);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .bar-fill { height: 100%; border-radius: 3px; }
-    .bar-fill.vi { background: var(--primary); }
-    .bar-fill.consistency { background: var(--secondary); }
-    .kpi-col {
+    .project-status.done { background: rgba(34,197,94,0.15); color: var(--success); }
+    .project-status.optimize { background: rgba(251,191,36,0.15); color: var(--accent); }
+    .project-status.alert { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .project-bars { display: flex; flex-direction: column; gap: 8px; }
+    .progress-item { display: flex; align-items: center; gap: 8px; }
+    .progress-label { font-size: 11px; color: var(--text-muted); width: 70px; }
+    .progress-track { flex: 1; height: 6px; background: var(--bg-dark); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; }
+    .progress-fill.vi { background: var(--primary); }
+    .progress-fill.consistency { background: var(--secondary); }
+    .progress-value { font-size: 11px; width: 35px; text-align: right; }
+    .sync-status {
       display: flex;
-      flex-direction: column;
-      gap: 10px;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 8px;
     }
+    .sync-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+    /* KPI cards */
+    .kpi-list { display: flex; flex-direction: column; gap: 12px; }
     .kpi-card {
       background: var(--bg-card-light);
-      border-radius: 8px;
-      padding: 14px;
+      border-radius: 10px;
+      padding: 16px;
+      border: 1px solid var(--border);
     }
-    .kpi-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-    .kpi-value { font-size: 24px; font-weight: 700; }
-    .kpi-change { font-size: 12px; margin-top: 2px; }
-    .kpi-change.up { color: #22c55e; }
-    .kpi-change.down { color: var(--danger); }
-    .kpi-status { display: flex; align-items: center; gap: 6px; font-size: 13px; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
-    .row2 {
-      display: grid;
-      grid-template-columns: 1fr 1.5fr 1fr;
-      gap: 16px;
+    .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .kpi-label { font-size: 12px; color: var(--text-muted); }
+    .kpi-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(251,191,36,0.15);
+      color: var(--accent);
     }
-    .donut-wrap, .line-wrap { height: 180px; }
-    @media (max-width: 900px) {
-      .grid, .row2 { grid-template-columns: 1fr; }
+    .kpi-value { font-size: 32px; font-weight: 700; }
+    .kpi-trend { font-size: 12px; margin-top: 4px; }
+    .kpi-trend.up { color: var(--success); }
+    .kpi-trend.down { color: var(--danger); }
+    .kpi-status { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+    @media (max-width: 1000px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .project-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <!-- Header -->
   <div class="header">
     <div class="header-left">
-      <h1>📊 品牌运营数据看板</h1>
+      <h1>品牌组 <span>BI</span> 数字化大屏</h1>
+      <div class="header-sub">V1.0 · 品牌运营视角</div>
     </div>
-    <div class="header-meta">
-      <span>📅 最后更新：2026-03-30</span>
-      <span>🔄 刷新频率：每4小时</span>
-      <span>🎯 当前视图：战略视图</span>
+    <div class="nav-tabs">
+      <div class="nav-tab active">战略统筹</div>
+      <div class="nav-tab">生产效能</div>
+      <div class="nav-tab">底层技术</div>
+      <div class="nav-tab">品牌资产</div>
+    </div>
+    <div class="header-right">
+      <div class="clock">20:45:14</div>
+      <div class="system-status"><span class="status-dot"></span>SYSTEM ONLINE</div>
     </div>
   </div>
 
-  <div class="alerts">
-    <div class="alert warning">🔶 API配额剩余 23%</div>
-    <div class="alert danger">🔴 Tunnel心跳异常</div>
+  <!-- Meta strip -->
+  <div class="meta-strip">
+    <span>📅 最后刷新：2026-03-30 12:00:00</span>
+    <span>🔄 竞品监测频率：每4小时</span>
+    <span>🎯 当前模式：战略统筹</span>
   </div>
 
-  <div class="grid">
+  <!-- Risk bar -->
+  <div class="risk-bar">
+    <span class="risk-dot"></span>
+    <span class="risk-text">API配额和Tunnel心跳状态正常</span>
+  </div>
+
+  <!-- Main grid -->
+  <div class="main-grid">
+    <!-- Left: Radar -->
     <div class="card">
-      <div class="card-title">🕸️ 品牌战略雷达</div>
+      <div class="card-title">首屏：战略统筹中心（品牌运营视角）</div>
       <div class="radar-wrap">
         <canvas id="radarChart"></canvas>
       </div>
+      <div class="radar-hint">* 点击任意维度可下钻查看Skill解决方案建议</div>
     </div>
-    <div class="card">
-      <div class="card-title">📋 项目资产看板</div>
-      <div class="kanban-list">
-        <div class="kanban-item">
-          <div class="kanban-header">
-            <span class="kanban-name">51吃瓜</span>
-            <span class="kanban-status done">已完成 v2.3</span>
-          </div>
-          <div class="kanban-bars">
-            <div class="kanban-bar">
-              <label>VI覆盖</label>
-              <div class="bar-track"><div class="bar-fill vi" style="width:95%"></div></div>
-            </div>
-            <div class="kanban-bar">
-              <label>品牌一致性</label>
-              <div class="bar-track"><div class="bar-fill consistency" style="width:88%"></div></div>
-            </div>
-          </div>
-        </div>
-        <div class="kanban-item">
-          <div class="kanban-header">
-            <span class="kanban-name">节日营销</span>
-            <span class="kanban-status optimizing">优化中 v1.8</span>
-          </div>
-          <div class="kanban-bars">
-            <div class="kanban-bar">
-              <label>VI覆盖</label>
-              <div class="bar-track"><div class="bar-fill vi" style="width:78%"></div></div>
-            </div>
-            <div class="kanban-bar">
-              <label>品牌一致性</label>
-              <div class="bar-track"><div class="bar-fill consistency" style="width:82%"></div></div>
-            </div>
-          </div>
-        </div>
-        <div class="kanban-item">
-          <div class="kanban-header">
-            <span class="kanban-name">IP联名</span>
-            <span class="kanban-status">进行中 v3.0</span>
-          </div>
-          <div class="kanban-bars">
-            <div class="kanban-bar">
-              <label>VI覆盖</label>
-              <div class="bar-track"><div class="bar-fill vi" style="width:65%"></div></div>
-            </div>
-            <div class="kanban-bar">
-              <label>品牌一致性</label>
-              <div class="bar-track"><div class="bar-fill consistency" style="width:71%"></div></div>
-            </div>
-          </div>
-        </div>
-        <div class="kanban-item">
-          <div class="kanban-header">
-            <span class="kanban-name">品牌升级</span>
-            <span class="kanban-status">规划中 v2.0</span>
-          </div>
-          <div class="kanban-bars">
-            <div class="kanban-bar">
-              <label>VI覆盖</label>
-              <div class="bar-track"><div class="bar-fill vi" style="width:45%"></div></div>
-            </div>
-            <div class="kanban-bar">
-              <label>品牌一致性</label>
-              <div class="bar-track"><div class="bar-fill consistency" style="width:55%"></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">📈 运营指标</div>
-      <div class="kpi-col">
-        <div class="kpi-card">
-          <div class="kpi-label">技能成功率</div>
-          <div class="kpi-value" style="color:var(--primary)">94.2%</div>
-          <div class="kpi-change up">↑ +2.1%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">API配额</div>
-          <div class="kpi-value" style="color:var(--warning)">23%</div>
-          <div class="kpi-change down">↓ -12%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">连接状态</div>
-          <div class="kpi-status"><span class="status-dot"></span>在线</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">节省时间</div>
-          <div class="kpi-value">128h</div>
-          <div class="kpi-change up">↑ +18%</div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="row2">
+    <!-- Center: Projects 2x2 -->
     <div class="card">
-      <div class="card-title">🍩 设计需求分布</div>
-      <div class="donut-wrap">
-        <canvas id="donutChart"></canvas>
+      <div class="card-title">核心项目资产看板（4大项目）</div>
+      <div class="project-grid">
+        <div class="project-card">
+          <div class="project-header">
+            <div>
+              <div class="project-name">51吃瓜</div>
+              <div class="project-version">v2.4</div>
+            </div>
+            <span class="project-status done">已完结</span>
+          </div>
+          <div class="project-bars">
+            <div class="progress-item">
+              <span class="progress-label">VI覆盖</span>
+              <div class="progress-track"><div class="progress-fill vi" style="width:96%"></div></div>
+              <span class="progress-value">96%</span>
+            </div>
+            <div class="progress-item">
+              <span class="progress-label">品牌一致</span>
+              <div class="progress-track"><div class="progress-fill consistency" style="width:90%"></div></div>
+              <span class="progress-value">90%</span>
+            </div>
+          </div>
+          <div class="sync-status"><span class="sync-dot"></span>已同步</div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-header">
+            <div>
+              <div class="project-name">每日大赛</div>
+              <div class="project-version">v1.9</div>
+            </div>
+            <span class="project-status optimize">待优化</span>
+          </div>
+          <div class="project-bars">
+            <div class="progress-item">
+              <span class="progress-label">VI覆盖</span>
+              <div class="progress-track"><div class="progress-fill vi" style="width:78%"></div></div>
+              <span class="progress-value">78%</span>
+            </div>
+            <div class="progress-item">
+              <span class="progress-label">品牌一致</span>
+              <div class="progress-track"><div class="progress-fill consistency" style="width:82%"></div></div>
+              <span class="progress-value">82%</span>
+            </div>
+          </div>
+          <div class="sync-status"><span class="sync-dot"></span>已同步</div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-header">
+            <div>
+              <div class="project-name">黑料网</div>
+              <div class="project-version">v1.6</div>
+            </div>
+            <span class="project-status alert">待优化</span>
+          </div>
+          <div class="project-bars">
+            <div class="progress-item">
+              <span class="progress-label">VI覆盖</span>
+              <div class="progress-track"><div class="progress-fill vi" style="width:72%"></div></div>
+              <span class="progress-value">72%</span>
+            </div>
+            <div class="progress-item">
+              <span class="progress-label">品牌一致</span>
+              <div class="progress-track"><div class="progress-fill consistency" style="width:68%"></div></div>
+              <span class="progress-value">68%</span>
+            </div>
+          </div>
+          <div class="sync-status" style="color:var(--danger)">⚠️ 版本不一致</div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-header">
+            <div>
+              <div class="project-name">黑料不打烊</div>
+              <div class="project-version">v2.1</div>
+            </div>
+            <span class="project-status done">已完结</span>
+          </div>
+          <div class="project-bars">
+            <div class="progress-item">
+              <span class="progress-label">VI覆盖</span>
+              <div class="progress-track"><div class="progress-fill vi" style="width:92%"></div></div>
+              <span class="progress-value">92%</span>
+            </div>
+            <div class="progress-item">
+              <span class="progress-label">品牌一致</span>
+              <div class="progress-track"><div class="progress-fill consistency" style="width:88%"></div></div>
+              <span class="progress-value">88%</span>
+            </div>
+          </div>
+          <div class="sync-status"><span class="sync-dot"></span>已同步</div>
+        </div>
       </div>
     </div>
+
+    <!-- Right: KPIs -->
     <div class="card">
-      <div class="card-title">📈 交付响应时效 (TAT)</div>
-      <div class="line-wrap">
-        <canvas id="lineChart"></canvas>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">⚙️ 技术指标</div>
-      <div class="kpi-col">
+      <div class="card-title">技术性能指标</div>
+      <div class="kpi-list">
         <div class="kpi-card">
-          <div class="kpi-label">流程耗时</div>
-          <div class="kpi-value">2.3s</div>
-          <div class="kpi-change" style="color:#22c55e">↓ -0.5s</div>
+          <div class="kpi-header">
+            <span class="kpi-label">技能成功率</span>
+          </div>
+          <div class="kpi-value" style="color:var(--primary)">92.4%</div>
+          <div class="kpi-trend up">↑ 较昨日 +2.3%</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">资产增长</div>
-          <div class="kpi-value" style="color:var(--primary)">+156</div>
-          <div class="kpi-change up">↑ +23%</div>
+          <div class="kpi-header">
+            <span class="kpi-label">API剩余配额</span>
+            <span class="kpi-tag">重点关注</span>
+          </div>
+          <div class="kpi-value" style="color:var(--accent)">45%</div>
+          <div class="kpi-trend down">↓ 较昨日 -4.1%</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">技能调用</div>
-          <div class="kpi-value">8,420</div>
-          <div class="kpi-change up">↑ +15%</div>
+          <div class="kpi-header">
+            <span class="kpi-label">Tunnel心跳</span>
+          </div>
+          <div class="kpi-status">
+            <span class="status-dot"></span>
+            <span style="color:var(--success)">在线</span>
+          </div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">系统稳定性</div>
-          <div class="kpi-value" style="color:#22c55e">99.7%</div>
-          <div class="kpi-change up">↑ +0.2%</div>
+          <div class="kpi-header">
+            <span class="kpi-label">节省人力工时</span>
+          </div>
+          <div class="kpi-value">1260h</div>
+          <div class="kpi-trend up">↑ 累计 +84h</div>
         </div>
       </div>
     </div>
@@ -308,13 +393,15 @@
     new Chart(document.getElementById('radarChart'), {
       type: 'radar',
       data: {
-        labels: ['战略布局', '视觉设计', '品牌形象', '内容热点', '品牌活动'],
+        labels: ['品牌活动', '视听览', '品牌形象', '内容热点', '战略布局'],
         datasets: [{
-          data: [85, 92, 88, 76, 81],
-          backgroundColor: 'rgba(0,212,255,0.2)',
+          data: [88, 92, 85, 78, 82],
+          backgroundColor: 'rgba(0,212,255,0.15)',
           borderColor: '#00d4ff',
           borderWidth: 2,
-          pointBackgroundColor: '#00d4ff'
+          pointBackgroundColor: '#00d4ff',
+          pointBorderColor: '#fff',
+          pointRadius: 4
         }]
       },
       options: {
@@ -323,68 +410,12 @@
             beginAtZero: true,
             max: 100,
             ticks: { display: false },
-            grid: { color: 'rgba(255,255,255,0.1)' },
-            pointLabels: { color: '#94a3b8', font: { size: 11 } }
+            grid: { color: 'rgba(0,212,255,0.2)' },
+            angleLines: { color: 'rgba(0,212,255,0.2)' },
+            pointLabels: { color: '#94a3b8', font: { size: 12, weight: '500' } }
           }
         },
         plugins: { legend: { display: false } }
-      }
-    });
-
-    // Donut Chart
-    new Chart(document.getElementById('donutChart'), {
-      type: 'doughnut',
-      data: {
-        labels: ['IP设计', 'VI物料', '营销物料', '临时任务'],
-        datasets: [{
-          data: [35, 28, 25, 12],
-          backgroundColor: ['#00d4ff', '#a855f7', '#fbbf24', '#f97316'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        cutout: '65%',
-        plugins: {
-          legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11 }, padding: 12 } }
-        }
-      }
-    });
-
-    // Line Chart
-    new Chart(document.getElementById('lineChart'), {
-      type: 'line',
-      data: {
-        labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-        datasets: [{
-          label: '交付',
-          data: [42, 38, 45, 32, 28, 35, 40],
-          borderColor: '#00d4ff',
-          backgroundColor: 'rgba(0,212,255,0.1)',
-          fill: true,
-          tension: 0.4
-        }, {
-          label: '响应',
-          data: [35, 32, 38, 28, 24, 30, 35],
-          borderColor: '#a855f7',
-          backgroundColor: 'rgba(168,85,247,0.1)',
-          fill: true,
-          tension: 0.4
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            grid: { color: 'rgba(255,255,255,0.05)' },
-            ticks: { color: '#94a3b8' }
-          },
-          x: {
-            grid: { display: false },
-            ticks: { color: '#94a3b8' }
-          }
-        },
-        plugins: {
-          legend: { labels: { color: '#94a3b8' } }
-        }
       }
     });
   </script>
