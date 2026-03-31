@@ -5,485 +5,569 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>品牌运营 BI 看板 v5.0</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg-dark: #0a0c14;
-      --bg-card: #12141d;
-      --bg-card-light: #1a1d2a;
-      --primary: #00d4ff;
-      --secondary: #a855f7;
-      --accent: #fbbf24;
-      --success: #22c55e;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --text-main: #ffffff;
-      --text-muted: #94a3b8;
-      --border: rgba(0,212,255,0.15);
+    :root{
+      --bg:#0d0f14;--surface:#151820;--surface2:#1c2030;--surface3:#242840;
+      --border:#2a2f45;--border2:#363d5a;
+      --text:#e8eaf0;--text2:#9ba3be;--text3:#5a6280;
+      --blue:#4d8ef0;--blue-dim:#1e3d7a;--blue-glow:#4d8ef022;
+      --teal:#3dcfb0;--teal-dim:#0f4a3d;
+      --amber:#f0b940;--amber-dim:#5a3d0a;
+      --red:#f05060;--red-dim:#5a1520;
+      --green:#5ad68a;--green-dim:#0f3d20;
+      --purple:#9d6cf0;--purple-dim:#2d1a5a;
+      --font-main:'Noto Sans SC',sans-serif;
+      --font-mono:'IBM Plex Mono',monospace;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg-dark);
-      color: var(--text-main);
-      min-height: 100vh;
-      padding: 16px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 24px;
-      background: linear-gradient(90deg, rgba(0,212,255,0.08) 0%, transparent 100%);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 12px;
-    }
-    .header-left h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
-    .header-left h1 span { color: var(--primary); }
-    .header-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-    .nav-tabs { display: flex; gap: 4px; }
-    .nav-tab {
-      padding: 8px 20px;
-      border-radius: 6px;
-      font-size: 13px;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .nav-tab:hover { background: rgba(255,255,255,0.05); }
-    .nav-tab.active {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: #fff;
-      box-shadow: 0 0 20px rgba(0,212,255,0.3);
-    }
-    .header-right { text-align: right; }
-    .clock { font-size: 28px; font-weight: 300; font-family: 'JetBrains Mono', monospace; }
-    .system-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--success); margin-top: 4px; }
-    .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1; box-shadow: 0 0 8px var(--success); } 50% { opacity: 0.5; box-shadow: 0 0 4px var(--success); } }
-    .meta-strip { display: flex; justify-content: center; gap: 40px; padding: 8px; background: var(--bg-card); border-radius: 8px; margin-bottom: 12px; font-size: 12px; color: var(--text-muted); }
-    .meta-strip span { display: flex; align-items: center; gap: 6px; }
+    html,body{height:100%}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-main);font-size:13px;line-height:1.6}
+    .wrap{display:flex;min-height:100vh}
     
-    /* KPI 总卡区域 */
-    .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
-    .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
-    .kpi-label { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px; }
-    .kpi-value { font-size: 26px; font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
-    .kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-    .kpi-card.alert { border-color: rgba(239,68,68,0.3); }
-    .kpi-card.alert .kpi-value { color: var(--danger); }
-    .kpi-card.warning .kpi-value { color: var(--warning); }
+    /* 侧边栏 */
+    .sidebar{width:200px;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;flex-shrink:0;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+    .logo{padding:0 20px 24px;border-bottom:1px solid var(--border)}
+    .logo-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-family:var(--font-mono);color:var(--blue);background:var(--blue-glow);border:1px solid var(--blue-dim);padding:4px 8px;border-radius:4px;margin-bottom:8px}
+    .logo-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .logo h1{font-size:16px;font-weight:700;margin:0}
+    .logo-sub{font-size:11px;color:var(--text3);margin-top:2px}
+    .nav{flex:1;padding:12px 0}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--text2);cursor:pointer;transition:all 0.2s;border-left:2px solid transparent}
+    .nav-item:hover{background:var(--surface2);color:var(--text)}
+    .nav-item.active{background:var(--surface2);color:var(--blue);border-left-color:var(--blue)}
+    .nav-icon{font-size:16px;width:20px;text-align:center}
+    .nav-label{font-size:13px}
+    .nav-tag{font-size:10px;padding:2px 6px;border-radius:3px;margin-left:auto;font-family:var(--font-mono)}
+    .nav-tag.red{background:var(--red-dim);color:var(--red)}
+    .nav-tag.green{background:var(--green-dim);color:var(--green)}
+    .nav-tag.blue{background:var(--blue-dim);color:var(--blue)}
+    .sidebar-footer{padding:16px 20px;border-top:1px solid var(--border)}
+    .sys-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3)}
+    .sys-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+    
+    /* 主内容区 */
+    .main{flex:1;padding:20px 24px;overflow-y:auto}
+    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .header-left{}
+    .header h2{font-size:20px;font-weight:600;margin:0}
+    .header-sub{font-size:12px;color:var(--text3);margin-top:4px}
+    .header-right{display:flex;align-items:center;gap:20px}
+    .clock{font-family:var(--font-mono);font-size:24px;color:var(--text2)}
+    .header-meta{text-align:right;font-size:11px;color:var(--text3)}
+    
+    /* KPI卡片 */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+    .kpi-card.blue::before{background:var(--blue)}
+    .kpi-card.green::before{background:var(--green)}
+    .kpi-card.amber::before{background:var(--amber)}
+    .kpi-card.red::before{background:var(--red)}
+    .kpi-label{font-size:11px;color:var(--text3);margin-bottom:6px}
+    .kpi-value{font-size:28px;font-weight:700;font-family:var(--font-mono);color:var(--text)}
+    .kpi-card.blue .kpi-value{color:var(--blue)}
+    .kpi-card.green .kpi-value{color:var(--green)}
+    .kpi-card.amber .kpi-value{color:var(--amber)}
+    .kpi-card.red .kpi-value{color:var(--red)}
+    .kpi-sub{font-size:11px;color:var(--text3);margin-top:4px}
     
     /* 品牌健康度 */
-    .brand-health { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
-    .brand-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; position: relative; overflow: hidden; }
-    .brand-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-    .brand-card.healthy::before { background: var(--success); }
-    .brand-card.warning::before { background: var(--warning); }
-    .brand-card.danger::before { background: var(--danger); }
-    .brand-name { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-    .brand-status { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 10px; }
-    .brand-card.healthy .brand-status { background: rgba(34,197,94,0.2); color: var(--success); }
-    .brand-card.warning .brand-status { background: rgba(245,158,11,0.2); color: var(--warning); }
-    .brand-card.danger .brand-status { background: rgba(239,68,68,0.2); color: var(--danger); }
-    .brand-metrics { display: flex; justify-content: space-between; font-size: 11px; }
-    .brand-metrics span { color: var(--text-muted); }
-    .brand-metrics strong { color: var(--text-main); }
-    
-    /* 主网格 */
-    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-    .card-title { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-    .card-title::before { content: ''; width: 3px; height: 14px; background: var(--primary); border-radius: 2px; }
-    
-    /* 渠道表现 */
-    .channel-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .channel-item { background: var(--bg-card-light); border-radius: 8px; padding: 12px; text-align: center; }
-    .channel-name { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
-    .channel-stats { font-size: 11px; color: var(--text-muted); }
-    .channel-stats div { margin: 4px 0; }
-    .channel-stats strong { color: var(--text-main); font-size: 14px; }
-    .channel-rate { font-size: 12px; padding: 2px 6px; border-radius: 4px; margin-top: 6px; display: inline-block; }
-    .rate-high { background: rgba(34,197,94,0.2); color: var(--success); }
-    .rate-mid { background: rgba(245,158,11,0.2); color: var(--warning); }
-    .rate-low { background: rgba(239,68,68,0.2); color: var(--danger); }
-    
-    /* 设计需求 */
-    .design-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
-    .design-stat { background: var(--bg-card-light); border-radius: 8px; padding: 12px; text-align: center; }
-    .design-stat-value { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-    .design-stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-    .design-source { display: flex; justify-content: space-around; margin-top: 10px; }
-    .source-item { text-align: center; }
-    .source-name { font-size: 12px; color: var(--text-muted); }
-    .source-count { font-size: 18px; font-weight: 700; color: var(--primary); }
-    
-    /* 协同效率 */
-    .collab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .collab-item { background: var(--bg-card-light); border-radius: 8px; padding: 14px; text-align: center; }
-    .collab-value { font-size: 22px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-    .collab-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-    .collab-item.warning .collab-value { color: var(--warning); }
-    .collab-item.danger .collab-value { color: var(--danger); }
+    .brand-section{margin-bottom:16px}
+    .section-title{font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text2);display:flex;align-items:center;gap:8px}
+    .section-title::before{content:'';width:3px;height:14px;background:var(--blue);border-radius:2px}
+    .brand-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .brand-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;position:relative}
+    .brand-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0}
+    .brand-card.healthy::before{background:var(--green)}
+    .brand-card.warning::before{background:var(--amber)}
+    .brand-card.danger::before{background:var(--red)}
+    .brand-name{font-size:14px;font-weight:600;margin-bottom:8px}
+    .brand-status{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;margin-bottom:8px}
+    .brand-card.healthy .brand-status{background:var(--green-dim);color:var(--green)}
+    .brand-card.warning .brand-status{background:var(--amber-dim);color:var(--amber)}
+    .brand-card.danger .brand-status{background:var(--red-dim);color:var(--red)}
+    .brand-metrics{display:flex;justify-content:space-between;font-size:11px;color:var(--text3)}
+    .brand-metrics strong{color:var(--text)}
     
     /* 风险提示 */
-    .risk-bar { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 8px; margin-bottom: 12px; }
-    .risk-bar.green { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); }
-    .risk-bar.yellow { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); }
-    .risk-bar.red { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
-    .risk-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .risk-bar.green .risk-dot { background: var(--success); }
-    .risk-bar.yellow .risk-dot { background: var(--warning); }
-    .risk-bar.red .risk-dot { background: var(--danger); }
-    .risk-text { font-size: 13px; }
+    .risk-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;margin-bottom:16px}
+    .risk-bar.green{background:var(--green-dim);border:1px solid var(--green)}
+    .risk-bar.amber{background:var(--amber-dim);border:1px solid var(--amber)}
+    .risk-bar.red{background:var(--red-dim);border:1px solid var(--red)}
+    .risk-dot{width:8px;height:8px;border-radius:50%}
+    .risk-bar.green .risk-dot{background:var(--green)}
+    .risk-bar.amber .risk-dot{background:var(--amber)}
+    .risk-bar.red .risk-dot{background:var(--red)}
+    .risk-text{font-size:12px}
     
-    /* 第二屏 */
-    .second-screen { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 12px; }
-    .demand-chart { height: 180px; }
-    .tat-chart { height: 180px; }
-    .tech-metrics { display: flex; flex-direction: column; gap: 10px; justify-content: center; height: 180px; }
-    .tech-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-card-light); border-radius: 6px; }
-    .tech-label { font-size: 12px; color: var(--text-muted); }
-    .tech-value { font-size: 16px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--primary); }
-    .tech-value.up { color: var(--success); }
-    .tech-value.down { color: var(--danger); }
+    /* 网格布局 */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+    .card-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .card-title::before{content:'';width:3px;height:12px;background:var(--blue);border-radius:2px}
+    
+    /* 渠道 */
+    .channel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .channel-item{background:var(--surface2);border-radius:8px;padding:12px;text-align:center}
+    .channel-name{font-size:13px;font-weight:600;margin-bottom:8px}
+    .channel-stat{font-size:11px;color:var(--text3);margin:4px 0}
+    .channel-stat strong{color:var(--text);font-size:13px}
+    .channel-tag{font-size:10px;padding:2px 6px;border-radius:4px;margin-top:6px;display:inline-block}
+    .tag-high{background:var(--green-dim);color:var(--green)}
+    .tag-mid{background:var(--amber-dim);color:var(--amber)}
+    .tag-low{background:var(--red-dim);color:var(--red)}
+    
+    /* 设计需求 */
+    .design-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+    .design-stat{background:var(--surface2);border-radius:8px;padding:12px;text-align:center}
+    .design-val{font-size:22px;font-weight:700;font-family:var(--font-mono)}
+    .design-label{font-size:11px;color:var(--text3);margin-top:4px}
+    .design-sources{display:flex;justify-content:space-around;padding-top:8px;border-top:1px solid var(--border)}
+    .source-item{text-align:center}
+    .source-name{font-size:11px;color:var(--text3)}
+    .source-num{font-size:18px;font-weight:700;color:var(--blue);font-family:var(--font-mono)}
+    
+    /* 协同 */
+    .collab-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .collab-item{background:var(--surface2);border-radius:8px;padding:14px;text-align:center}
+    .collab-val{font-size:20px;font-weight:700;font-family:var(--font-mono);color:var(--text)}
+    .collab-item.warning .collab-val{color:var(--amber)}
+    .collab-item.danger .collab-val{color:var(--red)}
+    .collab-label{font-size:11px;color:var(--text3);margin-top:4px}
     
     /* 运营vs设计 */
-    .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .vs-card { background: var(--bg-card-light); border-radius: 8px; padding: 14px; }
-    .vs-title { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; text-align: center; }
-    .vs-stats { display: flex; justify-content: space-around; text-align: center; }
-    .vs-stat-value { font-size: 20px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-    .vs-stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .vs-card{background:var(--surface2);border-radius:8px;padding:14px}
+    .vs-title{font-size:12px;color:var(--text3);text-align:center;margin-bottom:10px}
+    .vs-stats{display:flex;justify-content:space-around}
+    .vs-stat{text-align:center}
+    .vs-num{font-size:18px;font-weight:700;font-family:var(--font-mono)}
+    .vs-label{font-size:10px;color:var(--text3);margin-top:2px}
+    
+    /* 技术指标 */
+    .tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .tech-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border-radius:6px}
+    .tech-label{font-size:11px;color:var(--text3)}
+    .tech-val{font-size:14px;font-weight:700;font-family:var(--font-mono);color:var(--blue)}
+    .tech-val.up{color:var(--green)}
+    .tech-val.down{color:var(--red)}
+    .tech-note{font-size:10px;margin-left:4px}
+    
+    /* Tab导航 */
+    .tab-bar{display:flex;gap:4px;margin-bottom:16px;background:var(--surface);padding:4px;border-radius:8px;width:fit-content}
+    .tab-item{padding:8px 16px;border-radius:6px;font-size:12px;color:var(--text2);cursor:pointer;transition:all 0.2s}
+    .tab-item:hover{color:var(--text)}
+    .tab-item.active{background:var(--blue);color:#fff}
+    
+    /* 复盘模板 */
+    .review-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .review-card{background:var(--surface2);border-radius:8px;padding:14px;border-left:3px solid var(--blue)}
+    .review-card h4{font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)}
+    .review-card p{font-size:11px;color:var(--text3);line-height:1.5}
+    
+    /* 岗位评分 */
+    .score-row{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface2);border-radius:8px;margin-bottom:8px}
+    .score-name{font-size:13px;font-weight:600}
+    .score-bar{display:flex;align-items:center;gap:10px}
+    .score-track{width:200px;height:8px;background:var(--surface3);border-radius:4px;overflow:hidden}
+    .score-fill{height:100%;border-radius:4px;transition:width 0.3s}
+    .score-fill.green{background:var(--green)}
+    .score-fill.amber{background:var(--amber)}
+    .score-fill.red{background:var(--red)}
+    .score-val{font-size:14px;font-weight:700;font-family:var(--font-mono);width:40px;text-align:right}
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="header-left">
-      <h1>品牌运营 <span>BI</span> 看板</h1>
-      <div class="header-sub">v5.0 · 数据截至 2026-03-31</div>
-    </div>
-    <div class="header-right">
-      <div class="clock" id="clock">14:45:00</div>
-      <div class="system-status"><span class="status-dot"></span>SYSTEM ONLINE</div>
-    </div>
-  </div>
-
-  <div class="meta-strip">
-    <span>📅 最后更新：2026-03-31 14:45</span>
-    <span>🔄 更新频率：每小时</span>
-    <span>🎯 当前视图：品牌运营总览</span>
-  </div>
-
-  <!-- KPI 总卡 -->
-  <div class="kpi-strip">
-    <div class="kpi-card">
-      <span class="kpi-label">品牌曝光达成</span>
-      <div class="kpi-value">92%</div>
-      <div class="kpi-sub">实际 920万 / 目标 1000万</div>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-label">设计交付准时率</span>
-      <div class="kpi-value">87%</div>
-      <div class="kpi-sub">本月 44件 / 按时 38件</div>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-label">进行中项目</span>
-      <div class="kpi-value">3</div>
-      <div class="kpi-sub">已完成 28件 / 延期 0</div>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-label">风险等级</span>
-      <div class="kpi-value warning">无重大风险</div>
-      <div class="kpi-sub">系统正常</div>
-    </div>
-  </div>
-
-  <!-- 四大品牌健康度 -->
-  <div class="brand-health">
-    <div class="brand-card healthy">
-      <div class="brand-name">51吃瓜</div>
-      <span class="brand-status">健康</span>
-      <div class="brand-metrics">
-        <span>VI覆盖 <strong>92%</strong></span>
-        <span>评分 <strong>85</strong></span>
+  <div class="wrap">
+    <!-- 侧边栏导航 -->
+    <div class="sidebar">
+      <div class="logo">
+        <div class="logo-badge"><span class="logo-dot"></span>BI DASHBOARD</div>
+        <h1>品牌运营看板</h1>
+        <div class="logo-sub">v5.0 · 多页面版本</div>
+      </div>
+      <div class="nav">
+        <div class="nav-item active"><span class="nav-icon">📊</span><span class="nav-label">00_总览</span><span class="nav-tag green">TOP</span></div>
+        <div class="nav-item"><span class="nav-icon">📈</span><span class="nav-label">01_运营结果</span></div>
+        <div class="nav-item"><span class="nav-icon">⚡</span><span class="nav-label">02_运营执行</span></div>
+        <div class="nav-item"><span class="nav-icon">🎨</span><span class="nav-label">03_设计效率</span></div>
+        <div class="nav-item"><span class="nav-icon">✨</span><span class="nav-label">04_设计质量</span></div>
+        <div class="nav-item"><span class="nav-icon">🔗</span><span class="nav-label">05_协同瓶颈</span><span class="nav-tag red">3</span></div>
+        <div class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">06_预算产出</span></div>
+        <div class="nav-item"><span class="nav-icon">📋</span><span class="nav-label">07_周报/月报</span></div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sys-status"><span class="sys-dot"></span>系统正常运行</div>
       </div>
     </div>
-    <div class="brand-card warning">
-      <div class="brand-name">每日大赛</div>
-      <span class="brand-status">预警</span>
-      <div class="brand-metrics">
-        <span>VI覆盖 <strong>78%</strong></span>
-        <span>评分 <strong>82</strong></span>
-      </div>
-    </div>
-    <div class="brand-card healthy">
-      <div class="brand-name">黑料网</div>
-      <span class="brand-status">健康</span>
-      <div class="brand-metrics">
-        <span>VI覆盖 <strong>95%</strong></span>
-        <span>评分 <strong>88</strong></span>
-      </div>
-    </div>
-    <div class="brand-card warning">
-      <div class="brand-name">黑料不打烊</div>
-      <span class="brand-status">预警</span>
-      <div class="brand-metrics">
-        <span>VI覆盖 <strong>90%</strong></span>
-        <span>评分 <strong>80</strong></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- 风险提示 -->
-  <div class="risk-bar yellow">
-    <span class="risk-dot"></span>
-    <span class="risk-text">⚠️ 2个品牌处于预警状态：每日大赛(VI覆盖78%)、黑料不打烊(评分80)</span>
-  </div>
-
-  <!-- 主内容区 -->
-  <div class="main-grid">
-    <div class="card">
-      <div class="card-title">渠道表现</div>
-      <div class="channel-grid">
-        <div class="channel-item">
-          <div class="channel-name">抖音</div>
-          <div class="channel-stats">
-            <div>曝光 <strong>120万</strong></div>
-            <div>互动率 <strong>6.5%</strong></div>
-            <div>转化率 <strong>1.8%</strong></div>
-          </div>
-          <div class="channel-rate rate-high">高效</div>
+    
+    <!-- 主内容 -->
+    <div class="main">
+      <div class="header">
+        <div class="header-left">
+          <h2>首页总览 · Executive Dashboard</h2>
+          <div class="header-sub">今日品牌组状态：健康/预警/风险</div>
         </div>
-        <div class="channel-item">
-          <div class="channel-name">快手</div>
-          <div class="channel-stats">
-            <div>曝光 <strong>85万</strong></div>
-            <div>互动率 <strong>4.8%</strong></div>
-            <div>转化率 <strong>1.2%</strong></div>
-          </div>
-          <div class="channel-rate rate-low">待优化</div>
-        </div>
-        <div class="channel-item">
-          <div class="channel-name">小红书</div>
-          <div class="channel-stats">
-            <div>曝光 <strong>65万</strong></div>
-            <div>互动率 <strong>8.2%</strong></div>
-            <div>转化率 <strong>2.5%</strong></div>
-          </div>
-          <div class="channel-rate rate-high">优质</div>
-        </div>
-        <div class="channel-item">
-          <div class="channel-name">视频号</div>
-          <div class="channel-stats">
-            <div>曝光 <strong>58万</strong></div>
-            <div>互动率 <strong>5.5%</strong></div>
-            <div>转化率 <strong>1.5%</strong></div>
-          </div>
-          <div class="channel-rate rate-mid">平稳</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">设计需求与交付</div>
-      <div class="design-stats">
-        <div class="design-stat">
-          <div class="design-stat-value" style="color:var(--primary)">44</div>
-          <div class="design-stat-label">本月总需求</div>
-        </div>
-        <div class="design-stat">
-          <div class="design-stat-value" style="color:var(--success)">38</div>
-          <div class="design-stat-label">按时交付</div>
-        </div>
-        <div class="design-stat">
-          <div class="design-stat-value" style="color:var(--danger)">25%</div>
-          <div class="design-stat-label">返工率</div>
-        </div>
-      </div>
-      <div class="design-source">
-        <div class="source-item">
-          <div class="source-name">乔乔</div>
-          <div class="source-count">6</div>
-        </div>
-        <div class="source-item">
-          <div class="source-name">青灰</div>
-          <div class="source-count">5</div>
-        </div>
-        <div class="source-item">
-          <div class="source-name">飞羽</div>
-          <div class="source-count">4</div>
-        </div>
-        <div class="source-item">
-          <div class="source-name">雾岚</div>
-          <div class="source-count">4</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">运营 vs 设计 效率对比</div>
-      <div class="vs-grid">
-        <div class="vs-card">
-          <div class="vs-title">运营</div>
-          <div class="vs-stats">
-            <div>
-              <div class="vs-stat-value">328篇</div>
-              <div class="vs-stat-label">内容发布</div>
-            </div>
-            <div>
-              <div class="vs-stat-value">920万</div>
-              <div class="vs-stat-label">曝光量</div>
-            </div>
-            <div>
-              <div class="vs-stat-value">23万</div>
-              <div class="vs-stat-label">互动量</div>
-            </div>
+        <div class="header-right">
+          <div class="clock" id="clock">17:37:00</div>
+          <div class="header-meta">
+            <div>📅 2026-03-31</div>
+            <div>🔄 每小时更新</div>
           </div>
         </div>
-        <div class="vs-card">
-          <div class="vs-title">设计</div>
-          <div class="vs-stats">
-            <div>
-              <div class="vs-stat-value">44件</div>
-              <div class="vs-stat-label">设计产出</div>
+      </div>
+
+      <!-- Tab 切换 -->
+      <div class="tab-bar">
+        <div class="tab-item active">战略总览</div>
+        <div class="tab-item">品牌健康度</div>
+        <div class="tab-item">渠道表现</div>
+        <div class="tab-item">设计交付</div>
+        <div class="tab-item">协同效率</div>
+      </div>
+
+      <!-- KPI 总卡 -->
+      <div class="kpi-row">
+        <div class="kpi-card blue">
+          <div class="kpi-label">品牌曝光达成</div>
+          <div class="kpi-value">92%</div>
+          <div class="kpi-sub">实际 920万 / 目标 1000万</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">设计交付准时率</div>
+          <div class="kpi-value">87%</div>
+          <div class="kpi-sub">本月 44件 / 按时 38件</div>
+        </div>
+        <div class="kpi-card amber">
+          <div class="kpi-label">进行中项目</div>
+          <div class="kpi-value">3</div>
+          <div class="kpi-sub">已完成 28件 / 延期 0</div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-label">风险等级</div>
+          <div class="kpi-value">无重大风险</div>
+          <div class="kpi-sub">系统正常</div>
+        </div>
+      </div>
+
+      <!-- 四大品牌健康度 -->
+      <div class="brand-section">
+        <div class="section-title">4大核心项目生命周期</div>
+        <div class="brand-grid">
+          <div class="brand-card healthy">
+            <div class="brand-name">51吃瓜</div>
+            <span class="brand-status">健康</span>
+            <div class="brand-metrics">
+              <span>VI覆盖 <strong>92%</strong></span>
+              <span>评分 <strong>85</strong></span>
             </div>
-            <div>
-              <div class="vs-stat-value">87%</div>
-              <div class="vs-stat-label">准时率</div>
+          </div>
+          <div class="brand-card warning">
+            <div class="brand-name">每日大赛</div>
+            <span class="brand-status">预警</span>
+            <div class="brand-metrics">
+              <span>VI覆盖 <strong>78%</strong></span>
+              <span>评分 <strong>82</strong></span>
             </div>
-            <div>
-              <div class="vs-stat-value">75%</div>
-              <div class="vs-stat-label">一次过稿</div>
+          </div>
+          <div class="brand-card healthy">
+            <div class="brand-name">黑料网</div>
+            <span class="brand-status">健康</span>
+            <div class="brand-metrics">
+              <span>VI覆盖 <strong>95%</strong></span>
+              <span>评分 <strong>88</strong></span>
+            </div>
+          </div>
+          <div class="brand-card warning">
+            <div class="brand-name">黑料不打烊</div>
+            <span class="brand-status">预警</span>
+            <div class="brand-metrics">
+              <span>VI覆盖 <strong>90%</strong></span>
+              <span>评分 <strong>80</strong></span>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <div class="card-title">协同效率</div>
-      <div class="collab-grid">
-        <div class="collab-item">
-          <div class="collab-value">82%</div>
-          <div class="collab-label">一次提交合格率</div>
-        </div>
-        <div class="collab-item">
-          <div class="collab-value">1.3次</div>
-          <div class="collab-label">平均需求补充次数</div>
-        </div>
-        <div class="collab-item">
-          <div class="collab-value">2.1轮</div>
-          <div class="collab-label">平均评审轮次</div>
-        </div>
-        <div class="collab-item">
-          <div class="collab-value">5.5天</div>
-          <div class="collab-label">立项到上线 Lead Time</div>
-        </div>
+      <!-- 风险提示 -->
+      <div class="risk-bar amber">
+        <span class="risk-dot"></span>
+        <span class="risk-text">⚠️ 2个品牌处于预警状态：每日大赛(VI覆盖78%)、黑料不打烊(评分80)</span>
       </div>
-    </div>
-  </div>
 
-  <!-- 第二屏 -->
-  <div class="second-screen">
-    <div class="card">
-      <div class="card-title">需求类型占比（设计侧）</div>
-      <div class="demand-chart">
-        <canvas id="demandChart"></canvas>
+      <!-- 渠道表现 -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">渠道表现 · 各渠道数据</div>
+          <div class="channel-grid">
+            <div class="channel-item">
+              <div class="channel-name">抖音</div>
+              <div class="channel-stat">曝光 <strong>120万</strong></div>
+              <div class="channel-stat">互动率 <strong>6.5%</strong></div>
+              <div class="channel-stat">转化率 <strong>1.8%</strong></div>
+              <div class="channel-tag tag-high">高效</div>
+            </div>
+            <div class="channel-item">
+              <div class="channel-name">快手</div>
+              <div class="channel-stat">曝光 <strong>85万</strong></div>
+              <div class="channel-stat">互动率 <strong>4.8%</strong></div>
+              <div class="channel-stat">转化率 <strong>1.2%</strong></div>
+              <div class="channel-tag tag-low">待优化</div>
+            </div>
+            <div class="channel-item">
+              <div class="channel-name">小红书</div>
+              <div class="channel-stat">曝光 <strong>65万</strong></div>
+              <div class="channel-stat">互动率 <strong>8.2%</strong></div>
+              <div class="channel-stat">转化率 <strong>2.5%</strong></div>
+              <div class="channel-tag tag-high">优质</div>
+            </div>
+            <div class="channel-item">
+              <div class="channel-name">视频号</div>
+              <div class="channel-stat">曝光 <strong>58万</strong></div>
+              <div class="channel-stat">互动率 <strong>5.5%</strong></div>
+              <div class="channel-stat">转化率 <strong>1.5%</strong></div>
+              <div class="channel-tag tag-mid">平稳</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">设计需求与交付</div>
+          <div class="design-stats">
+            <div class="design-stat">
+              <div class="design-val" style="color:var(--blue)">44</div>
+              <div class="design-label">本月总需求</div>
+            </div>
+            <div class="design-stat">
+              <div class="design-val" style="color:var(--green)">38</div>
+              <div class="design-label">按时交付</div>
+            </div>
+            <div class="design-stat">
+              <div class="design-val" style="color:var(--red)">25%</div>
+              <div class="design-label">返工率</div>
+            </div>
+          </div>
+          <div class="design-sources">
+            <div class="source-item">
+              <div class="source-name">乔乔</div>
+              <div class="source-num">6</div>
+            </div>
+            <div class="source-item">
+              <div class="source-name">青灰</div>
+              <div class="source-num">5</div>
+            </div>
+            <div class="source-item">
+              <div class="source-name">飞羽</div>
+              <div class="source-num">4</div>
+            </div>
+            <div class="source-item">
+              <div class="source-name">雾岚</div>
+              <div class="source-num">4</div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-title">交付时效 TAT（响应 vs 交付）</div>
-      <div class="tat-chart">
-        <canvas id="tatChart"></canvas>
+
+      <!-- 运营vs设计 & 协同效率 -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">运营 vs 设计 效率对比</div>
+          <div class="vs-grid">
+            <div class="vs-card">
+              <div class="vs-title">运营</div>
+              <div class="vs-stats">
+                <div class="vs-stat">
+                  <div class="vs-num">328篇</div>
+                  <div class="vs-label">内容发布</div>
+                </div>
+                <div class="vs-stat">
+                  <div class="vs-num">920万</div>
+                  <div class="vs-label">曝光量</div>
+                </div>
+                <div class="vs-stat">
+                  <div class="vs-num">23万</div>
+                  <div class="vs-label">互动量</div>
+                </div>
+              </div>
+            </div>
+            <div class="vs-card">
+              <div class="vs-title">设计</div>
+              <div class="vs-stats">
+                <div class="vs-stat">
+                  <div class="vs-num">44件</div>
+                  <div class="vs-label">设计产出</div>
+                </div>
+                <div class="vs-stat">
+                  <div class="vs-num">87%</div>
+                  <div class="vs-label">准时率</div>
+                </div>
+                <div class="vs-stat">
+                  <div class="vs-num">75%</div>
+                  <div class="vs-label">一次过稿</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">协同效率 · 运营 × 设计</div>
+          <div class="collab-grid">
+            <div class="collab-item">
+              <div class="collab-val">82%</div>
+              <div class="collab-label">一次提交合格率</div>
+            </div>
+            <div class="collab-item">
+              <div class="collab-val">1.3次</div>
+              <div class="collab-label">平均补充次数</div>
+            </div>
+            <div class="collab-item warning">
+              <div class="collab-val">2.1轮</div>
+              <div class="collab-label">平均评审轮次</div>
+            </div>
+            <div class="collab-item">
+              <div class="collab-val">5.5天</div>
+              <div class="collab-label">Lead Time</div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-title">底层技术指标</div>
-      <div class="tech-metrics">
-        <div class="tech-item">
-          <span class="tech-label">平均流转时长</span>
-          <span class="tech-value">18.6h <span style="color:var(--success);font-size:11px">↓ 1.2h</span></span>
+
+      <!-- 第二屏：需求类型 + TAT + 技术指标 -->
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">需求类型占比（设计侧）</div>
+          <div style="height:180px">
+            <canvas id="demandChart"></canvas>
+          </div>
         </div>
-        <div class="tech-item">
-          <span class="tech-label">今日新增资产</span>
-          <span class="tech-value up">42 <span style="color:var(--success);font-size:11px">↑ +8</span></span>
+        <div class="card">
+          <div class="card-title">交付时效 TAT（响应 vs 交付）</div>
+          <div style="height:180px">
+            <canvas id="tatChart"></canvas>
+          </div>
         </div>
-        <div class="tech-item">
-          <span class="tech-label">今日 Skill 调用</span>
-          <span class="tech-value">84 <span style="color:var(--success);font-size:11px">↑ +14</span></span>
-        </div>
-        <div class="tech-item">
-          <span class="tech-label">Tunnel 状态</span>
-          <span class="tech-value" style="color:var(--success)">稳定</span>
+        <div class="card">
+          <div class="card-title">底层技术指标</div>
+          <div class="tech-grid">
+            <div class="tech-item">
+              <span class="tech-label">平均流转时长</span>
+              <span class="tech-val">18.6h <span class="tech-note" style="color:var(--green)">↓1.2h</span></span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-label">今日新增资产</span>
+              <span class="tech-val up">42 <span class="tech-note" style="color:var(--green)">↑+8</span></span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-label">Skill 调用</span>
+              <span class="tech-val">84 <span class="tech-note" style="color:var(--green)">↑+14</span></span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-label">Tunnel 状态</span>
+              <span class="tech-val" style="color:var(--green)">稳定</span>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- 周/月复盘中心 -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-title">周/月复盘中心（固定6块模板）</div>
+        <div class="review-grid">
+          <div class="review-card">
+            <h4>1. 本期目标与达成</h4>
+            <p>曝光目标1000万，实际920万，达成率92%。设计交付44件，准时38件，准时率87%。</p>
+          </div>
+          <div class="review-card">
+            <h4>2. 亮点项目</h4>
+            <p>• 51吃瓜VI覆盖率提升至92%<br>• 小红书互动率8.2%创月度新高<br>• 0项目延期</p>
+          </div>
+          <div class="review-card">
+            <h4>3. 未达成项及原因</h4>
+            <p>• 每日大赛VI仅78%（设计产能不足）<br>• 返工率25%（需求描述不清）</p>
+          </div>
+          <div class="review-card">
+            <h4>4. 岗位效率评分</h4>
+            <p>运营评分：92分<br>设计评分：88分</p>
+          </div>
+          <div class="review-card">
+            <h4>5. 重点风险</h4>
+            <p>• 每日大赛/黑料不打烊预警<br>• 设计返工率偏高（25%）</p>
+          </div>
+          <div class="review-card">
+            <h4>6. 下周行动清单</h4>
+            <p>• 乔乔：完成每日大赛VI优化（周三）<br>• 青灰：降低返工率至20%（周五）</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 岗位管理评分 -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-title">岗位管理 · 100分制评分</div>
+        <div class="score-row">
+          <span class="score-name">品牌运营（运营岗位）</span>
+          <div class="score-bar">
+            <div class="score-track"><div class="score-fill green" style="width:92%"></div></div>
+            <span class="score-val" style="color:var(--green)">92</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:12px">权重：结果达成40% + 执行效率30% + 协同质量20% + 复盘改进10%</div>
+        <div class="score-row">
+          <span class="score-name">品牌设计（设计岗位）</span>
+          <div class="score-bar">
+            <div class="score-track"><div class="score-fill green" style="width:88%"></div></div>
+            <span class="score-val" style="color:var(--green)">88</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text3)">权重：交付效率35% + 质量一致性35% + 协同响应20% + 规范沉淀10%</div>
+      </div>
+
     </div>
   </div>
 
   <script>
     // 时钟
-    function updateClock() {
+    function updateClock(){
       const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+      document.getElementById('clock').textContent = now.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     }
-    setInterval(updateClock, 1000);
+    setInterval(updateClock,1000);
     updateClock();
 
     // 需求类型环形图
-    new Chart(document.getElementById('demandChart'), {
-      type: 'doughnut',
-      data: {
-        labels: ['宣发图', 'VI物料', 'IP设计', '临时任务'],
-        datasets: [{
-          data: [42, 28, 20, 10],
-          backgroundColor: ['#00d4ff', '#a855f7', '#fbbf24', '#f97316'],
-          borderWidth: 0
-        }]
+    new Chart(document.getElementById('demandChart'),{
+      type:'doughnut',
+      data:{
+        labels:['宣发图','VI物料','IP设计','临时任务'],
+        datasets:[{data:[42,28,20,10],backgroundColor:['#4d8ef0','#9d6cf0','#f0b940','#f97316'],borderWidth:0}]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'right', labels: { color: '#94a3b8', font: {size: 11}, padding: 10 } }
-        }
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{position:'right',labels:{color:'#9ba3be',font:{size:11},padding:10}}}
       }
     });
 
-    // TAT 折线图
-    new Chart(document.getElementById('tatChart'), {
-      type: 'line',
-      data: {
-        labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-        datasets: [
-          {
-            label: '响应时间',
-            data: [35, 32, 38, 28, 24, 30, 35],
-            borderColor: '#00d4ff',
-            backgroundColor: 'rgba(0,212,255,0.1)',
-            fill: true,
-            tension: 0.4
-          },
-          {
-            label: '交付时间',
-            data: [42, 38, 45, 32, 28, 35, 40],
-            borderColor: '#a855f7',
-            backgroundColor: 'rgba(168,85,247,0.1)',
-            fill: true,
-            tension: 0.4
-          }
+    // TAT折线图
+    new Chart(document.getElementById('tatChart'),{
+      type:'line',
+      data:{
+        labels:['周一','周二','周三','周四','周五','周六','周日'],
+        datasets:[
+          {label:'响应时间',data:[35,32,38,28,24,30,35],borderColor:'#4d8ef0',backgroundColor:'rgba(77,142,240,0.1)',fill:true,tension:0.4},
+          {label:'交付时间',data:[42,38,45,32,28,35,40],borderColor:'#9d6cf0',backgroundColor:'rgba(157,108,240,0.1)',fill:true,tension:0.4}
         ]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-          x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{
+          y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#9ba3be'}},
+          x:{grid:{display:false},ticks:{color:'#9ba3be'}}
         },
-        plugins: {
-          legend: { labels: { color: '#94a3b8', font: {size: 11} } }
-        }
+        plugins:{legend:{labels:{color:'#9ba3be',font:{size:11}}}}
       }
     });
   </script>
