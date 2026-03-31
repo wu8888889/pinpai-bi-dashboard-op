@@ -483,10 +483,15 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-  // Wait for DOM ready
-  document.addEventListener('DOMContentLoaded', function() {
-  
   const navMap = {overview:0, ops:1, design:2, collab:3, review:4, docs:5};
+
+  function switchTab(id) {
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('pane-' + id).classList.add('active');
+    document.querySelectorAll('.nav-item')[navMap[id]].classList.add('active');
+    if (id === 'ops') renderOpsChart();
+  }
 
   // Radar Chart
   new Chart(document.getElementById('radarChart'), {
@@ -602,7 +607,7 @@
     });
   }
   });
-  });
+}
 </script>
 </body>
 </html>
